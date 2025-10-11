@@ -44,7 +44,7 @@ X_processed = pd.concat([X_num_scaled, X_cat], axis=1)
 # 6️⃣ Train/test split
 # =======================
 X_train, X_test, y_train, y_test = train_test_split(
-    X_processed, y, test_size=0.1, random_state=42
+    X_processed, y, test_size=0.3, random_state=42
 )
 
 # =======================
