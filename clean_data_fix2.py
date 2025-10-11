@@ -3,8 +3,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 # Update file paths as needed
-file_path = "/Users/notatord/Documents/Coding/linear-project/test.csv"  # Replace with actual path
-out_path = "/Users/notatord/Documents/Coding/linear-project/clean2.csv"  # Replace with actual path
+file_path = "train.csv"  # Replace with actual path
+out_path = "clean.csv"  # Replace with actual path
 
 df = pd.read_csv(file_path)
 
