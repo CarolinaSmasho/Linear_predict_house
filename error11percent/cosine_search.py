@@ -38,3 +38,7 @@ data["similarity"] = similarities
 similar_houses = data.sort_values(by="similarity", ascending=False).head(10)
 
 print(similar_houses)
+
+
+# Input Example
+# CollgCr 8450 208500
