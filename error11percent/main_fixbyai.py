@@ -17,7 +17,7 @@ mape_scorer = make_scorer(custom_mape, greater_is_better=False)
 # =======================
 # 1️⃣ Load dataset
 # =======================
-df = pd.read_csv("train_and_test.csv")
+df = pd.read_csv("dataold.csv")
 y = np.log1p(df['SalePrice'])  # Log-transform target
 X = df.drop(columns=['SalePrice', 'Id'])
 
