@@ -1,114 +1,117 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 # =======================
-# 1️⃣ โหลด dataset
+# 1️⃣ โหลด train data
 # =======================
-df = pd.read_csv("train.csv")
-y = df['SalePrice']
-X = df.drop(columns=['SalePrice', 'Id'])
+df_train = pd.read_csv("train.csv")
+y_train = df_train['SalePrice']
+X_train = df_train.drop(columns=['SalePrice', 'Id'])
 
-numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
-categorical_cols = X.select_dtypes(include=['object', 'category']).columns.tolist()
+numeric_cols = X_train.select_dtypes(include=[np.number]).columns.tolist()
+categorical_cols = X_train.select_dtypes(include=['object', 'category']).columns.tolist()
 
 # =======================
 # 2️⃣ Impute missing values
 # =======================
 for c in numeric_cols:
-    X[c] = X[c].fillna(X[c].median())
+    X_train[c] = X_train[c].fillna(X_train[c].median())
 for c in categorical_cols:
-    X[c] = X[c].fillna(X[c].mode()[0] if not X[c].mode().empty else "Missing")
+    mode_val = X_train[c].mode()[0] if not X_train[c].mode().empty else "Missing"
+    X_train[c] = X_train[c].fillna(mode_val)
 
 # =======================
 # 3️⃣ One-hot encode categorical
 # =======================
-X_cat = pd.get_dummies(X[categorical_cols], drop_first=False)
-X_num = X[numeric_cols]
+X_train_cat = pd.get_dummies(X_train[categorical_cols], drop_first=False)
+X_train_num = X_train[numeric_cols]
 
 # =======================
 # 4️⃣ Scale numeric
 # =======================
 scaler = StandardScaler()
-X_num_scaled = pd.DataFrame(scaler.fit_transform(X_num), columns=numeric_cols, index=X.index)
+X_train_num_scaled = pd.DataFrame(scaler.fit_transform(X_train_num), columns=numeric_cols, index=X_train.index)
 
 # =======================
 # 5️⃣ Combine features
 # =======================
-X_processed = pd.concat([X_num_scaled, X_cat], axis=1)
+X_train_processed = pd.concat([X_train_num_scaled, X_train_cat], axis=1)
 
 # =======================
-# 6️⃣ Train/test split
-# =======================
-X_train, X_test, y_train, y_test = train_test_split(
-    X_processed, y, test_size=0.3, random_state=42
-)
-
-# =======================
-# 7️⃣ Linear Regression
+# 6️⃣ Train Linear Regression
 # =======================
 model = LinearRegression()
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+model.fit(X_train_processed, y_train)
 
 # =======================
-# 8️⃣ Evaluate
+# 7️⃣ โหลด test.csv และ sample_submission.csv
 # =======================
-mse = mean_squared_error(y_test, y_pred)
-rmse = np.sqrt(mse)
-percent_error = 100 * np.abs((y_test.values - y_pred) / y_test.values)
-mape = percent_error.mean()
+df_test = pd.read_csv("test.csv")  # test set ไม่มี SalePrice
+sample_submission = pd.read_csv("sample_submission.csv")  # template submission
 
-print(f"Mean Squared Error (MSE): {mse:.2f}")
-print(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-print(f"Mean Absolute Percentage Error (MAPE): {mape:.2f}%")
+X_test = df_test.drop(columns=['Id'])
 
 # =======================
-# 9️⃣ Predict from user input
+# 8️⃣ Impute missing values (ใช้ median/mode จาก train)
+# =======================
+for c in numeric_cols:
+    if c in X_test.columns:
+        X_test[c] = X_test[c].fillna(X_train[c].median())
+for c in categorical_cols:
+    if c in X_test.columns:
+        mode_val = X_train[c].mode()[0] if not X_train[c].mode().empty else "Missing"
+        X_test[c] = X_test[c].fillna(mode_val)
+
+# =======================
+# 9️⃣ One-hot encode test
+# =======================
+X_test_cat = pd.get_dummies(X_test[categorical_cols], drop_first=False)
+X_test_cat = X_test_cat.reindex(columns=X_train_cat.columns, fill_value=0)
+X_test_num_scaled = pd.DataFrame(scaler.transform(X_test[numeric_cols]), columns=numeric_cols, index=X_test.index)
+X_test_processed = pd.concat([X_test_num_scaled, X_test_cat], axis=1)
+
+# =======================
+# 10️⃣ Predict test set
+# =======================
+y_test_pred = model.predict(X_test_processed)
+
+# =======================
+# 11️⃣ สร้าง submission.csv
+# =======================
+submission = pd.DataFrame({
+    "Id": sample_submission["Id"],
+    "SalePrice": y_test_pred
+})
+submission.to_csv("submission.csv", index=False)
+print("submission.csv ถูกสร้างเรียบร้อย ✅")
+
+# =======================
+# 12️⃣ Predict จาก user input
 # =======================
 def predict_house(user_input):
-    """
-    user_input: dict ของ feature เช่น
-    {
-        'MSSubClass': 60,
-        'LotFrontage': 80,
-        'LotArea': 9600,
-        'OverallQual': 7,
-        ...
-        'Neighborhood': 'CollgCr',
-        ...
-    }
-    """
-    # แปลงเป็น DataFrame
     df_input = pd.DataFrame([user_input])
 
-    # Impute numeric/categorical
+    # Impute
     for c in numeric_cols:
         if c not in df_input.columns:
-            df_input[c] = X[c].median()
+            df_input[c] = X_train[c].median()
     for c in categorical_cols:
         if c not in df_input.columns:
-            df_input[c] = X[c].mode()[0]
+            df_input[c] = X_train[c].mode()[0]
 
     # Scale numeric
-    df_num = df_input[numeric_cols]
-    df_num_scaled = pd.DataFrame(scaler.transform(df_num), columns=numeric_cols)
+    df_num_scaled = pd.DataFrame(scaler.transform(df_input[numeric_cols]), columns=numeric_cols)
 
     # One-hot encode categorical
     df_cat = pd.get_dummies(df_input[categorical_cols], drop_first=False)
+    df_cat = df_cat.reindex(columns=X_train_cat.columns, fill_value=0)
 
-    # Align columns with training set
-    df_cat = df_cat.reindex(columns=X_cat.columns, fill_value=0)
-
-    # Combine
     df_processed = pd.concat([df_num_scaled, df_cat], axis=1)
 
-    # Predict
-    price_pred = model.predict(df_processed)[0]
-    return price_pred
+    return model.predict(df_processed)[0]
 
 # =======================
 # ตัวอย่างใช้ฟังก์ชัน
@@ -116,7 +119,7 @@ def predict_house(user_input):
 example_input = {
     'MSSubClass': 60,
     'LotFrontage': 80,
-    'LotArea': 100000,
+    'LotArea': 20000,
     'OverallQual': 7,
     'OverallCond': 5,
     'YearBuilt': 2000,
