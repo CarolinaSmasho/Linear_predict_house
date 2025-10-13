@@ -46,51 +46,6 @@ X_train_processed = pd.concat([X_train_num_scaled, X_train_cat], axis=1)
 model = LinearRegression()
 model.fit(X_train_processed, y_train)
 
-# =======================
-# 7️⃣ โหลด test.csv และ sample_submission.csv
-# =======================
-df_test = pd.read_csv("test.csv")  # test set ไม่มี SalePrice
-sample_submission = pd.read_csv("sample_submission.csv")  # template submission
-
-X_test = df_test.drop(columns=['Id'])
-
-# =======================
-# 8️⃣ Impute missing values (ใช้ median/mode จาก train)
-# =======================
-for c in numeric_cols:
-    if c in X_test.columns:
-        X_test[c] = X_test[c].fillna(X_train[c].median())
-for c in categorical_cols:
-    if c in X_test.columns:
-        mode_val = X_train[c].mode()[0] if not X_train[c].mode().empty else "Missing"
-        X_test[c] = X_test[c].fillna(mode_val)
-
-# =======================
-# 9️⃣ One-hot encode test
-# =======================
-X_test_cat = pd.get_dummies(X_test[categorical_cols], drop_first=False)
-X_test_cat = X_test_cat.reindex(columns=X_train_cat.columns, fill_value=0)
-X_test_num_scaled = pd.DataFrame(scaler.transform(X_test[numeric_cols]), columns=numeric_cols, index=X_test.index)
-X_test_processed = pd.concat([X_test_num_scaled, X_test_cat], axis=1)
-
-# =======================
-# 10️⃣ Predict test set
-# =======================
-y_test_pred = model.predict(X_test_processed)
-
-# =======================
-# 11️⃣ สร้าง submission.csv
-# =======================
-# submission = pd.DataFrame({
-#     "Id": sample_submission["Id"],
-#     "SalePrice": y_test_pred
-# })
-# submission.to_csv("submission.csv", index=False)
-# print("submission.csv ถูกสร้างเรียบร้อย ✅")
-
-# =======================
-# 12️⃣ Predict จาก user input
-# =======================
 def predict_house(user_input):
     df_input = pd.DataFrame([user_input])
 

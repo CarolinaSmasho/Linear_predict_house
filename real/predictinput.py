@@ -1,4 +1,4 @@
-from main import predict_house
+from real.predict import predict_house
 
 example_input = {
     'MSSubClass': 20,

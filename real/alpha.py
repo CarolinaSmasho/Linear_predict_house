@@ -1,6 +1,7 @@
-from main import predict_house
-
-inp_data = input("B or S or 0: ")
+from predict import predict_house
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 
@@ -51,17 +52,54 @@ def parse_input(input_string):
     
     return filtered_dict
 
+inp_data = input("(B)uy or (S)ell or (0)Exit: ")
 
-while inp_data != 0:
-    if inp_data == "B":
+while inp_data != "0":
+    if inp_data == "S":
         print("Enter house data in tab-separated format:")
         input_detail = input()
         example_input = parse_input(input_detail)
+        predicted_price = predict_house(example_input)
+        print(f"\nPredicted house price: ${predicted_price:,.2f}")
+        print()
         
         
         
         
         
-    elif inp_data == "S":
-        print("S")
-    inp_data = input("B or S or 0: ").strip().split()
+    elif inp_data == "B":
+        # โหลดข้อมูล
+        df = pd.read_csv("dataold.csv")
+        data = df[["Neighborhood", "LotArea", "SalePrice"]].copy()
+
+        # รับ input
+        inp = input("Neighborhood, LotArea, SalePrice: ").split(" ")
+        input_data = {
+            "Neighborhood": inp[0],
+            "LotArea": int(inp[1]),
+            "SalePrice": int(inp[2])
+        }
+
+        # สร้างคอลัมน์ Neighborhood_match
+        data["Neighborhood_match"] = data["Neighborhood"].apply(
+            lambda x: 1 if x == input_data["Neighborhood"] else 0
+        )
+
+        # รวมข้อมูลสำหรับ scaling
+        scaler = MinMaxScaler()
+        scaled_features = scaler.fit_transform(data[["Neighborhood_match", "LotArea", "SalePrice"]])
+
+        # แปลง input_vector แล้ว scale ด้วย scaler เดียวกัน
+        input_vector = scaler.transform([[1, input_data["LotArea"], input_data["SalePrice"]]])
+
+        # คำนวณ cosine similarity
+        similarities = cosine_similarity(input_vector, scaled_features)[0]
+
+        data["similarity"] = similarities
+        similar_houses = data.sort_values(by="similarity", ascending=False).head(10)
+
+        print(similar_houses)
+    inp_data = input("B or S or 0: ")
+    
+# 50	RM	51	6120	Pave	NA	Reg	Lvl	AllPub	Inside	Gtl	OldTown	Artery	Norm	1Fam	1.5Fin	7	5	1931	1950	Gable	CompShg	BrkFace	Wd Shng	None	0	TA	TA	BrkTil	TA	TA	No	Unf	0	Unf	0	952	952	GasA	Gd	Y	FuseF	1022	752	0	1774	0	0	2	0	2	2	TA	8	Min1	2	TA	Detchd	1931	Unf	2	468	Fa	TA	Y	90	0	205	0	0	0	NA	NA	NA	0	4	2008	WD	Abnorml 
+# CollgCr 8450 208500

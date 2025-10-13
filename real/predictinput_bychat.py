@@ -1,4 +1,4 @@
-from main import predict_house
+from real.predict import predict_house
 
 def parse_input(input_string):
     # Define the keys in the order of the input format

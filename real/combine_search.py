@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics.pairwise import cosine_similarity
-from main import predict_house
+from predict import predict_house
 from sklearn.preprocessing import MinMaxScaler
 
 
