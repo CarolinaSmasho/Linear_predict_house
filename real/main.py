@@ -81,12 +81,12 @@ y_test_pred = model.predict(X_test_processed)
 # =======================
 # 11️⃣ สร้าง submission.csv
 # =======================
-submission = pd.DataFrame({
-    "Id": sample_submission["Id"],
-    "SalePrice": y_test_pred
-})
-submission.to_csv("submission.csv", index=False)
-print("submission.csv ถูกสร้างเรียบร้อย ✅")
+# submission = pd.DataFrame({
+#     "Id": sample_submission["Id"],
+#     "SalePrice": y_test_pred
+# })
+# submission.to_csv("submission.csv", index=False)
+# print("submission.csv ถูกสร้างเรียบร้อย ✅")
 
 # =======================
 # 12️⃣ Predict จาก user input
@@ -117,32 +117,86 @@ def predict_house(user_input):
 # ตัวอย่างใช้ฟังก์ชัน
 # =======================
 example_input = {
-    'MSSubClass': 60,
-    'LotFrontage': 80,
-    'LotArea': 20000,
-    'OverallQual': 7,
-    'OverallCond': 5,
-    'YearBuilt': 2000,
-    'YearRemodAdd': 2003,
-    'Neighborhood': 'CollgCr',
+    'MSSubClass': 20,
+    'MSZoning': 'RL',
+    # 'LotFrontage': None,  # 'NA' typically represents missing data
+    'LotArea': 10920,
+    'Street': 'Pave',
+    # 'Alley': None,  # 'NA' for missing data
+    'LotShape': 'IR1',
+    'LandContour': 'Lvl',
+    'Utilities': 'AllPub',
+    'LotConfig': 'Corner',
+    'LandSlope': 'Gtl',
+    'Neighborhood': 'NAmes',
+    'Condition1': 'Norm',
+    'Condition2': 'Norm',
     'BldgType': '1Fam',
-    'HouseStyle': '2Story',
-    'Exterior1st': 'VinylSd',
-    'Exterior2nd': 'VinylSd',
-    'ExterQual': 'Gd',
+    'HouseStyle': '1Story',
+    'OverallQual': 6,
+    'OverallCond': 5,
+    'YearBuilt': 1960,
+    'YearRemodAdd': 1960,
+    'RoofStyle': 'Hip',
+    'RoofMatl': 'CompShg',
+    'Exterior1st': 'MetalSd',
+    'Exterior2nd': 'MetalSd',
+    'MasVnrType': 'BrkFace',
+    'MasVnrArea': 212,
+    'ExterQual': 'TA',
     'ExterCond': 'TA',
-    'Foundation': 'PConc',
-    'BsmtQual': 'Gd',
+    'Foundation': 'CBlock',
+    'BsmtQual': 'TA',
     'BsmtCond': 'TA',
+    'BsmtExposure': 'No',
+    'BsmtFinType1': 'BLQ',
+    'BsmtFinSF1': 733,
+    'BsmtFinType2': 'Unf',
+    'BsmtFinSF2': 0,
+    'BsmtUnfSF': 520,
+    'TotalBsmtSF': 1253,
     'Heating': 'GasA',
-    'HeatingQC': 'Ex',
+    'HeatingQC': 'TA',
     'CentralAir': 'Y',
-    'KitchenQual': 'Gd',
+    'Electrical': 'SBrkr',
+    '1stFlrSF': 1253,
+    '2ndFlrSF': 0,
+    'LowQualFinSF': 0,
+    'GrLivArea': 1253,
+    'BsmtFullBath': 1,
+    'BsmtHalfBath': 0,
+    'FullBath': 1,
+    'HalfBath': 1,
+    'BedroomAbvGr': 2,
+    'KitchenAbvGr': 1,
+    'KitchenQual': 'TA',
+    'TotRmsAbvGrd': 5,
     'Functional': 'Typ',
     'Fireplaces': 1,
-    'GarageCars': 2,
-    'GarageArea': 500
+    'FireplaceQu': 'Fa',
+    'GarageType': 'Attchd',
+    'GarageYrBlt': 1960,
+    'GarageFinish': 'RFn',
+    'GarageCars': 1,
+    'GarageArea': 352,
+    'GarageQual': 'TA',
+    'GarageCond': 'TA',
+    'PavedDrive': 'Y',
+    'WoodDeckSF': 0,
+    'OpenPorchSF': 213,
+    'EnclosedPorch': 176,
+    '3SsnPorch': 0,
+    'ScreenPorch': 0,
+    'PoolArea': 0,
+    # 'PoolQC': None,  # 'NA' for missing data
+    'Fence': 'GdWo',
+    # 'MiscFeature': None, #feasibly converted to None,  # 'NA' for missing data
+    'MiscVal': 0,
+    'MoSold': 5,
+    'YrSold': 2008,
+    'SaleType': 'WD',
+    'SaleCondition': 'Normal'
 }
 
-predicted_price = predict_house(example_input)
-print(f"\nPredicted house price: ${predicted_price:,.2f}")
+# predicted_price = predict_house(example_input)
+# print(f"\nPredicted house price: ${predicted_price:,.2f}")
