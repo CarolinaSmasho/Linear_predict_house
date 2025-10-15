@@ -75,7 +75,7 @@ def select_neighborhood(neighborhoods):
 def main():
     # Load data
     try:
-        df = pd.read_csv("dataold.csv")
+        df = pd.read_csv("train.csv")
     except FileNotFoundError:
         print("Error: 'dataold.csv' not found. Please ensure the file is in the correct directory.")
         return
